@@ -2,6 +2,7 @@
 #define TRACKER_DATA_H
 
 #include <threads.h>
+#include <stdbool.h>
 
 /**
  * @brief Statistics read from /proc/stat file about processor usage.
@@ -19,6 +20,7 @@ typedef struct proc_stats {
     unsigned long stat_steal;
     unsigned long stat_guest;
     unsigned long stat_guest_nice;
+    double stat_percentage;
 } proc_stats;
 
 /**
@@ -27,13 +29,16 @@ typedef struct proc_stats {
  */
 typedef struct tracker_data {
     mtx_t tracker_mutex;
-    size_t lines;           /**< Number of read statistics: number of cpu cores and additional line for summarized usage */
+    cnd_t cnd_analyze;
+    cnd_t cnd_print;
+    bool finished;          /**< Condition for program to finish its work */
+    size_t lines;           /**< Number of read statistics: number of cpu cores and additional line for averaged usage */
     proc_stats stats[];
 } tracker_data;
 
 /**
  * @brief Data initializer.
- * Function allocates needed memory space, initializes threads' mutex and extracts information about the number of cpu cores used by the system.
+ * Function allocates needed memory space, initializes threads' mutex, conditional variables and extracts information about the number of cpu cores used by the system.
  * It will be used to provide information between threads.
  * 
  * @return Pointer to the program data
