@@ -12,10 +12,9 @@ int thread_analyze(void* new_data) {
     proc_stats prev[data->lines];
     memset(prev, 0, data->lines * sizeof(prev[0]));
 
+    mtx_lock(&data->tracker_mutex);
     while (!data->finished) {
-        mtx_lock(&data->tracker_mutex);
         cnd_wait(&data->cnd_analyze, &data->tracker_mutex);
-
         if (!data->finished) {
             for (size_t line = 0; line < data->lines; ++line) {
                 data->stats[line].stat_percentage = get_percentage(prev[line], data->stats[line]);
@@ -32,9 +31,8 @@ int thread_analyze(void* new_data) {
             }
             cnd_signal(&data->cnd_print);
         }
-
-        mtx_unlock(&data->tracker_mutex);
     }
+    mtx_unlock(&data->tracker_mutex);
     
     return 0;
 }

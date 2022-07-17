@@ -15,6 +15,8 @@ tracker_data* tracker_data_init(void) {
     mtx_init(&new_tracker_data->tracker_mutex, mtx_plain);
     cnd_init(&new_tracker_data->cnd_analyze);
     cnd_init(&new_tracker_data->cnd_print);
+    cnd_init(&new_tracker_data->cnd_watchdog);
+    cnd_init(&new_tracker_data->cnd_log);
 
     return new_tracker_data;
 }
@@ -22,6 +24,8 @@ tracker_data* tracker_data_init(void) {
 void tracker_data_destroy(tracker_data* tracker_data) {
     cnd_destroy(&tracker_data->cnd_analyze);
     cnd_destroy(&tracker_data->cnd_print);
+    cnd_destroy(&tracker_data->cnd_watchdog);
+    cnd_destroy(&tracker_data->cnd_log);
     mtx_destroy(&tracker_data->tracker_mutex);
 
     free(tracker_data);

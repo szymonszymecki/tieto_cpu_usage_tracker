@@ -4,6 +4,8 @@
 #include <threads.h>
 #include <stdbool.h>
 
+#define LOG_BUFFER_SIZE 64
+
 /**
  * @brief Statistics read from /proc/stat file about processor usage.
  * 
@@ -31,6 +33,8 @@ typedef struct tracker_data {
     mtx_t tracker_mutex;
     cnd_t cnd_analyze;
     cnd_t cnd_print;
+    cnd_t cnd_watchdog;
+    cnd_t cnd_log;
     bool finished;          /**< Condition for program to finish its work */
     size_t lines;           /**< Number of read statistics: number of cpu cores and additional line for averaged usage */
     proc_stats stats[];

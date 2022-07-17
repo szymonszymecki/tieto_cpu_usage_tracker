@@ -7,8 +7,8 @@
 int thread_print(void* new_data) {
     tracker_data* restrict data = new_data;
 
+    mtx_lock(&data->tracker_mutex);
     while (!data->finished) {
-        mtx_lock(&data->tracker_mutex);
         cnd_wait(&data->cnd_print, &data->tracker_mutex);
 
         if (!data->finished) {
@@ -17,9 +17,8 @@ int thread_print(void* new_data) {
                 printf("%8s -> core usage (percentage): %f %%\n", data->stats[line].stat_name, data->stats[line].stat_percentage);
             }
         }
-
-        mtx_unlock(&data->tracker_mutex);
     }
+    mtx_unlock(&data->tracker_mutex);
     
     return 0;
 }

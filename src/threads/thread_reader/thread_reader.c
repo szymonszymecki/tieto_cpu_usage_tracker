@@ -13,7 +13,7 @@ int thread_read(void* new_data) {
     do {
         FILE* stat_reader = fopen("/proc/stat", "r");
         if (!stat_reader) {
-            perror("Reading stats from /proc/stat failed\n");
+            perror("Opening /proc/stat file failed\n");
             goto FINISH;
         }
 
@@ -41,7 +41,7 @@ int thread_read(void* new_data) {
         mtx_unlock(&data->tracker_mutex);
 
         fclose(stat_reader);
-        sleep(1);
+        thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
     } while (!data->finished);
 
     FINISH:
