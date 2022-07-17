@@ -4,8 +4,10 @@
 /**
  * @brief Reads statistics from /proc/stat file for further analyze.
  * 
+ * @param new_data Data shared between threads.
+ * 
  * @return Thread returns 0 when thread finishes its work. 
  */
-int thread_read(void*);
+int thread_read(void* new_data);
 
 #endif

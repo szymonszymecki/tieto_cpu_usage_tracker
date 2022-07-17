@@ -6,6 +6,6 @@
  * 
  * @return Thread returns 0 when thread finishes its work.
  */
-int thread_print(void*);
+int thread_print(void* new_data);
 
 #endif

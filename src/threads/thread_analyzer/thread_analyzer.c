@@ -15,6 +15,7 @@ int thread_analyze(void* new_data) {
     mtx_lock(&data->tracker_mutex);
     while (!data->finished) {
         cnd_wait(&data->cnd_analyze, &data->tracker_mutex);
+        
         if (!data->finished) {
             for (size_t line = 0; line < data->lines; ++line) {
                 data->stats[line].stat_percentage = get_percentage(prev[line], data->stats[line]);
@@ -29,6 +30,11 @@ int thread_analyze(void* new_data) {
                 prev[line].stat_softirq = data->stats[line].stat_softirq;
                 prev[line].stat_steal = data->stats[line].stat_steal;
             }
+            char msg[LOG_MESSAGE_SIZE];
+            sprintf(msg, "ANALYZER (second %zu): Sending percentage usage to printer.", data->seconds);
+            circular_buffer_push(data->circ_buffer, msg);
+            cnd_signal(&data->cnd_log);
+
             cnd_signal(&data->cnd_print);
         }
     }

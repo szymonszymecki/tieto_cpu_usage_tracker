@@ -32,10 +32,14 @@ $(BUILD_DIR)/%.c.o: %.c
 .PHONY: test
 test: $(TEST_BUILD_DIR)/$(TEST_TARGET_EXEC)
 
-$(TEST_BUILD_DIR)/$(TEST_TARGET_EXEC): $(TEST_OBJS)
+$(TEST_BUILD_DIR)/$(TEST_TARGET_EXEC): $(TEST_OBJS) $(OBJS)
 	$(CC) $(TEST_OBJS) $(filter-out %/main.c.o, $(OBJS)) -o $@ -lpthread
 
 $(TEST_BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
