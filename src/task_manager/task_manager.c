@@ -1,7 +1,6 @@
 #include "task_manager.h"
 
 #include "../data/tracker_data.h"
-
 #include "../threads/thread_reader/thread_reader.h"
 #include "../threads/thread_analyzer/thread_analyzer.h"
 #include "../threads/thread_printer/thread_printer.h"

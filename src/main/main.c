@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#define MAX_SECONDS 10
+#define MAX_SECONDS 0
 
 int main(void) {
     tracker_data* new_data = tracker_data_init(MAX_SECONDS);

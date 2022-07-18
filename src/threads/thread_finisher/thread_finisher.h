@@ -1,8 +1,6 @@
 #ifndef THREAD_FINISHER_H
 #define THREAD_FINISHER_H
 
-#include "../../data/tracker_data.h"
-
 /**
  * @brief Sets @a finished flag to @a true and allows threads to finish their work.
  * 

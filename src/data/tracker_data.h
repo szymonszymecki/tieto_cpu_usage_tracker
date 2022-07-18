@@ -4,9 +4,9 @@
 #include "circular_buffer/circular_buffer.h"
 
 #include <threads.h>
-#include <stdbool.h>
+#include <signal.h>
 
-#define MAX_SECONDS 10
+extern volatile sig_atomic_t finished; /**< Condition for program to finish its work */
 
 /**
  * @brief Statistics read from /proc/stat file about processor usage.
@@ -37,7 +37,6 @@ typedef struct tracker_data {
     cnd_t cnd_print;
     cnd_t cnd_watchdog;
     cnd_t cnd_log;
-    bool finished;                  /**< Condition for program to finish its work */
     size_t seconds;                 /**< Number of seconds since program beginning */
     size_t max_time;                /**< Time after which program finishes its work. */
     circular_buffer* circ_buffer;   /**< Buffer for logs */
@@ -50,7 +49,7 @@ typedef struct tracker_data {
  * Function allocates needed memory space, initializes threads' mutex, conditional variables and extracts information about the number of cpu cores used by the system.
  * It will be used to provide information between threads.
  * 
- * @param max_time Time after which program finishes its work.
+ * @param max_time Time after which program finishes its work. If equals 0, it's set to @a INT_MAX value.
  * 
  * @return Pointer to the program data
  */
@@ -63,5 +62,7 @@ tracker_data* tracker_data_init(size_t max_time);
  * @param tracker_data Data to be destroyed.
  */
 void tracker_data_destroy(tracker_data* tracker_data);
+
+void term(int signum);
 
 #endif

@@ -16,7 +16,7 @@ int thread_log(void* new_data) {
     }
 
     mtx_lock(&data->tracker_mutex);
-    while (!data->finished) {
+    while (!finished) {
         cnd_wait(&data->cnd_log, &data->tracker_mutex);
 
         while (!circular_buffer_is_empty(data->circ_buffer)) {

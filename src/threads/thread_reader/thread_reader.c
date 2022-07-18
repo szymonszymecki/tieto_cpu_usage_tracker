@@ -14,16 +14,18 @@ int thread_read(void* new_data) {
         FILE* stat_reader = fopen("/proc/stat", "r");
         if (!stat_reader) {
             mtx_lock(&data->tracker_mutex);
+
             char msg[LOG_MESSAGE_SIZE];
             sprintf(msg, "READER (second %zu): Opening /proc/stat file failed", (data->seconds + 1));
             circular_buffer_push(data->circ_buffer, msg);
-            thread_finish(data);
-            mtx_unlock(&data->tracker_mutex);
-            return 0;
+            goto FINISH;
         }
 
         mtx_lock(&data->tracker_mutex);
         data->seconds++;
+        if (data->seconds > data->max_time) {
+            goto FINISH;
+        }
         for (size_t line = 0; line < data->lines; ++line) {
             if (fscanf(stat_reader, "%8s %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu",
                 data->stats[line].stat_name,
@@ -41,28 +43,26 @@ int thread_read(void* new_data) {
                 char msg[LOG_MESSAGE_SIZE];
                 sprintf(msg, "READER (second %zu): End of file reached in reader thread.", data->seconds);
                 circular_buffer_push(data->circ_buffer, msg);
-                thread_finish(data);
-                break;
+                goto FINISH;
             }
         }
 
-        if (!data->finished) {
+        if (!finished) {
             char msg[LOG_MESSAGE_SIZE];
             sprintf(msg, "READER (second %zu): Sending statistics to analyzer.", data->seconds);
             circular_buffer_push(data->circ_buffer, msg);
             cnd_signal(&data->cnd_log);
-
             cnd_signal(&data->cnd_analyze);
-        }
-
-        if (data->seconds >= data->max_time) {
-            thread_finish(data);
         }
         mtx_unlock(&data->tracker_mutex);
 
         fclose(stat_reader);
         thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL);
-    } while (!data->finished);
+    } while (!finished);
 
+    mtx_lock(&data->tracker_mutex);
+    FINISH:
+    thread_finish(data);
+    mtx_unlock(&data->tracker_mutex);
     return 0;
 }
