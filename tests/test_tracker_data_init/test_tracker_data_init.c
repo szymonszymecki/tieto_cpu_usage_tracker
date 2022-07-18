@@ -8,7 +8,7 @@
 
 void test_tracker_data_init() {
     puts("Test: Data initialization");
-    tracker_data* new_data = tracker_data_init();
+    tracker_data* new_data = tracker_data_init(0);
     assert(new_data != NULL);
     puts("Data initialization: Passed. Checking cores count (expected 4).");
     assert(get_nprocs_conf() == 4);
